@@ -1,9 +1,8 @@
 window.AppConfig = {
     // Monetization Configuration
-    // Set to true in production when a real provider (e.g., AdSense) is configured
-    ADS_ENABLED: false, 
-    ADS_PROVIDER: 'placeholder', 
-    PUBLISHER_ID: '',
-    CONTENT_AD_SLOT: '',
+    ADS_ENABLED: true, 
+    ADS_PROVIDER: 'adsense', 
+    PUBLISHER_ID: 'ca-pub-1690886583473471',
+    CONTENT_AD_SLOT: '5760987311',
     ANCHOR_AD_ENABLED: false
 };
