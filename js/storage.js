@@ -13,7 +13,9 @@ window.Storage = (function() {
 
     function saveCurrentMix(name) {
         const activeSounds = window.AudioEngine.getActiveSounds();
-        if (Object.keys(activeSounds).length === 0) {
+        const magicState = window.AudioEngine.getMagicState();
+        
+        if (Object.keys(activeSounds).length === 0 && !magicState.isPlaying) {
             alert("No sounds to save! Play some sounds first.");
             return false;
         }
@@ -28,6 +30,7 @@ window.Storage = (function() {
             id: 'mix_' + Date.now(),
             name: name || 'My Custom Mix',
             mix: mixData,
+            magic: magicState.isPlaying ? magicState.volume : null,
             createdAt: Date.now()
         });
 
@@ -57,6 +60,12 @@ window.Storage = (function() {
                 window.AudioEngine.toggleSound(soundId, soundData.file, volume);
             }
         }
+        
+        if (preset.magic !== undefined && preset.magic !== null) {
+            window.AudioEngine.toggleMagic();
+            window.AudioEngine.setMagicVolume(preset.magic);
+        }
+        
         window.UI.renderAll();
     }
 

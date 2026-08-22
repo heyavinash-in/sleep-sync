@@ -4,6 +4,7 @@ window.UI = (function() {
         if (!soundLibrary) return;
         soundLibrary.innerHTML = '';
         
+        // Render Ambient Sounds
         window.SleepData.sounds.forEach(sound => {
             const isActive = !!window.AudioEngine.getActiveSounds()[sound.id];
             
@@ -24,6 +25,27 @@ window.UI = (function() {
             `;
             soundLibrary.appendChild(card);
         });
+
+        // Render Magic Card
+        const magicState = window.AudioEngine.getMagicState();
+        const magicCard = document.createElement('div');
+        magicCard.className = `p-4 rounded-2xl flex flex-col items-center cursor-pointer card-hover border-2 ${
+            magicState.isPlaying ? 'bg-fuchsia-900/30 border-fuchsia-500 shadow-lg shadow-fuchsia-900/20' : 'bg-slate-900 border-slate-800'
+        }`;
+        
+        magicCard.onclick = () => {
+            window.AudioEngine.toggleMagic();
+            renderAll();
+        };
+
+        magicCard.innerHTML = `
+            <div class="text-4xl mb-3">✨</div>
+            <h3 class="font-medium ${magicState.isPlaying ? 'text-fuchsia-300' : 'text-slate-200'}">Magic Music</h3>
+            <p class="text-xs text-slate-400 text-center mt-1">
+                ${magicState.isPlaying ? 'Playing Track ' + magicState.trackNum : 'Romantic Playlist'}
+            </p>
+        `;
+        soundLibrary.appendChild(magicCard);
     }
 
     function renderMixer() {
@@ -33,8 +55,9 @@ window.UI = (function() {
 
         const active = window.AudioEngine.getActiveSounds();
         const activeIds = Object.keys(active);
+        const magicState = window.AudioEngine.getMagicState();
         
-        if (activeIds.length === 0) {
+        if (activeIds.length === 0 && !magicState.isPlaying) {
             activeContainer.classList.add('hidden');
             return;
         }
@@ -42,6 +65,7 @@ window.UI = (function() {
         activeContainer.classList.remove('hidden');
         activeMixer.innerHTML = '';
 
+        // Render ambient sound rows
         activeIds.forEach(id => {
             const sound = window.SleepData.sounds.find(s => s.id === id);
             if (!sound) return;
@@ -68,6 +92,29 @@ window.UI = (function() {
             `;
             activeMixer.appendChild(row);
         });
+
+        // Render Magic music row
+        if (magicState.isPlaying) {
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-4 bg-slate-900 p-4 rounded-xl border border-fuchsia-900/50';
+            
+            row.innerHTML = `
+                <div class="text-2xl w-10 text-center">✨</div>
+                <div class="flex-1">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="font-medium text-fuchsia-300">Magic Music (Track ${magicState.trackNum})</span>
+                        <span class="text-slate-400">${Math.round(magicState.volume * 100)}%</span>
+                    </div>
+                    <input type="range" min="0" max="1" step="0.01" value="${magicState.volume}" 
+                        class="w-full accent-fuchsia-500"
+                        oninput="window.AudioEngine.setMagicVolume(this.value); window.UI.renderMixer();">
+                </div>
+                <button class="text-slate-500 hover:text-red-400 p-2 ml-2 transition-colors" onclick="window.AudioEngine.toggleMagic(); window.UI.renderAll();" aria-label="Remove Magic">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            `;
+            activeMixer.appendChild(row);
+        }
     }
 
     function renderPresets() {
@@ -102,15 +149,18 @@ window.UI = (function() {
             const row = document.createElement('div');
             row.className = 'flex justify-between items-center p-3 mb-2 bg-slate-900 border border-slate-800 rounded-xl hover:border-indigo-500 transition-all';
             
-            const soundNames = Object.keys(mix.mix).map(id => {
+            let soundNames = Object.keys(mix.mix).map(id => {
                 const s = window.SleepData.sounds.find(x => x.id === id);
                 return s ? s.name : id;
-            }).join(' • ');
+            });
+            if (mix.magic) {
+                soundNames.push("Magic Music");
+            }
 
             row.innerHTML = `
                 <div class="flex-1 cursor-pointer" onclick="window.Storage.loadMix('${mix.id}')">
                     <h3 class="font-medium text-slate-200">${mix.name}</h3>
-                    <p class="text-xs text-slate-500 mt-1">${soundNames}</p>
+                    <p class="text-xs text-slate-500 mt-1">${soundNames.join(' • ')}</p>
                 </div>
                 <button class="text-slate-500 hover:text-red-400 p-2 ml-4" onclick="window.UI.handleDeleteMix('${mix.id}')" aria-label="Delete Mix">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
