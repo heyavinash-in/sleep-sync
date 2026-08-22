@@ -12,7 +12,7 @@
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center selection:bg-indigo-500/30">
     
     <div class="max-w-3xl w-full">
-        <!-- Header -->
+        <!-- 1. Header -->
         <header class="text-center mt-6 mb-12 hide-in-sleep flex flex-col items-center">
             <h1 class="text-5xl font-bold mb-3 text-indigo-400 tracking-tight">SleepSync</h1>
             <p class="text-slate-400 text-lg mb-6">Your personal ambient environment.</p>
@@ -21,7 +21,15 @@
             </button>
         </header>
 
-        <!-- Main Mixer Section -->
+        <!-- 2. Sound Library -->
+        <section class="mb-12 hide-in-sleep">
+            <h2 class="text-xl font-semibold text-slate-300 mb-4">Sound Library</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="sound-library">
+                <!-- Sound cards injected here -->
+            </div>
+        </section>
+
+        <!-- 3 & 4. Current Mix & Mixer -->
         <section id="mixer-container" class="mb-10 hidden transition-all duration-500">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-indigo-300">Current Mix</h2>
@@ -43,33 +51,7 @@
             </div>
         </section>
 
-        <!-- Sound Library -->
-        <section class="mb-12 hide-in-sleep">
-            <h2 class="text-xl font-semibold text-slate-300 mb-4">Sound Library</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="sound-library">
-                <!-- Sound cards injected here -->
-            </div>
-        </section>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 hide-in-sleep">
-            <!-- Presets -->
-            <section>
-                <h2 class="text-xl font-semibold text-slate-300 mb-4">Presets</h2>
-                <div class="flex flex-col gap-3" id="presets-list">
-                    <!-- Preset buttons injected here -->
-                </div>
-            </section>
-
-            <!-- Saved Mixes -->
-            <section>
-                <h2 class="text-xl font-semibold text-slate-300 mb-4">My Mixes</h2>
-                <div class="flex flex-col gap-3" id="saved-mixes-list">
-                    <!-- Saved mix rows injected here -->
-                </div>
-            </section>
-        </div>
-
-        <!-- Sleep Timer -->
+        <!-- 5. Sleep Timer -->
         <section class="mb-12 bg-slate-900/50 p-6 rounded-2xl border border-slate-800 flex flex-col items-center">
             <h2 class="text-xl mb-6 font-semibold text-indigo-300 flex items-center gap-2">
                 <span>⏱️</span> Sleep Timer
@@ -93,18 +75,54 @@
             </div>
         </section>
 
+        <!-- 6. ADVERTISEMENT -->
+        <section id="ad-container-main" class="mb-12 w-full flex justify-center hide-in-sleep transition-opacity duration-500">
+            <!-- Ad injected by ads.js -->
+        </section>
+
+        <!-- 7 & 8. Presets and My Mixes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 hide-in-sleep">
+            <section>
+                <h2 class="text-xl font-semibold text-slate-300 mb-4">Presets</h2>
+                <div class="flex flex-col gap-3" id="presets-list">
+                    <!-- Preset buttons injected here -->
+                </div>
+            </section>
+            <section>
+                <h2 class="text-xl font-semibold text-slate-300 mb-4">My Mixes</h2>
+                <div class="flex flex-col gap-3" id="saved-mixes-list">
+                    <!-- Saved mix rows injected here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- 9. Helpful Info / SEO -->
+        <section class="mb-12 hide-in-sleep bg-slate-900/20 p-6 md:p-8 rounded-2xl border border-slate-800/30 text-slate-400 text-sm leading-relaxed mx-auto">
+            <h2 class="text-lg font-semibold text-slate-300 mb-3">How SleepSync Works</h2>
+            <p class="mb-4">SleepSync is designed to help you create your perfect ambient environment. Whether you are trying to focus on work, relax after a long day, or fall asleep peacefully, surrounding yourself with the right acoustic atmosphere can drastically improve your mental state.</p>
+            
+            <h3 class="text-md font-semibold text-slate-300 mb-2 mt-6">Create Your Perfect Ambient Environment</h3>
+            <p class="mb-4">Use the sound library to blend multiple acoustic tracks together. Mix the deep rumble of a campfire with the soft pitter-patter of rain, or combine ocean waves with a howling wind. You have complete control over the individual volume of every element, allowing you to sculpt the exact frequency masking you need to block out distractions.</p>
+            
+            <h3 class="text-md font-semibold text-slate-300 mb-2 mt-6">Intelligent Sleep Timer</h3>
+            <p class="mb-2">Falling asleep with audio playing shouldn't mean being jolted awake when it abruptly stops. Our intelligent Sleep Timer gradually fades your mix into silence over the final 30 seconds of your session, ensuring your transition into deep sleep remains uninterrupted.</p>
+        </section>
+
     </div>
 
     <!-- Modular Scripts -->
+    <script src="js/config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/presets.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/ads.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.UI) window.UI.init();
+            if (window.AdsManager) window.AdsManager.init();
         });
     </script>
 </body>
