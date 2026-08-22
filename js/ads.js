@@ -1,11 +1,13 @@
 window.AdsManager = (function() {
+    let adDestroyed = false;
+
     function init() {
         const container = document.getElementById('ad-container-main');
-        if (!container) return;
+        // If the ad was already destroyed for this session, never reload it
+        if (!container || adDestroyed) return;
 
         if (!window.AppConfig.ADS_ENABLED) {
             // Development Placeholder
-            // Reserved dimensions to prevent Layout Shift (CLS)
             container.innerHTML = `
                 <div class="w-full min-h-[90px] max-w-[728px] mx-auto flex flex-col items-center justify-center bg-slate-900/30 border border-slate-800/50 rounded-xl text-slate-500 text-sm">
                     <span class="mb-1 text-slate-600 font-medium tracking-wide text-xs uppercase">Advertisement</span>
@@ -13,10 +15,9 @@ window.AdsManager = (function() {
                 </div>
             `;
         } else {
-            // Production AdSense Insertion
-            // Ensure min-height is still reserved while loading to prevent layout shift
+            // Production Ad Insertion
             container.innerHTML = `
-                <div class="w-full min-h-[90px] flex justify-center items-center ad-production-slot overflow-hidden relative">
+                <div class="w-full min-h-[90px] flex justify-center items-center overflow-hidden">
                     <!-- SleepSync_Main_Banner -->
                     <ins class="adsbygoogle"
                          style="display:block; width: 100%;"
@@ -26,32 +27,30 @@ window.AdsManager = (function() {
                          data-full-width-responsive="true"></ins>
                 </div>
             `;
-            loadAdProvider();
-        }
-    }
-
-    function loadAdProvider() {
-        if (window.AppConfig.ADS_PROVIDER === 'adsense') {
+            
             try {
-                // 1. Inject the Google AdSense script dynamically into the <head> 
-                // (using innerHTML for scripts doesn't execute them, so we create an element)
-                if (!document.querySelector('script[src*="adsbygoogle.js"]')) {
-                    const script = document.createElement('script');
-                    script.async = true;
-                    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${window.AppConfig.PUBLISHER_ID}`;
-                    script.crossOrigin = "anonymous";
-                    document.head.appendChild(script);
-                }
-                
-                // 2. Initialize the specific ad slot
+                // Initialize the specific ad slot
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
-                
-                console.log(`[AdsManager] Injected AdSense banner ${window.AppConfig.CONTENT_AD_SLOT}`);
             } catch (e) {
                 console.error("[AdsManager] Failed to load AdSense", e);
             }
         }
     }
 
-    return { init };
+    function handleSleepModeEnter() {
+        const container = document.getElementById('ad-container-main');
+        if (container && !adDestroyed) {
+            // Completely destroy the DOM node. Do NOT hide with CSS.
+            // This is the compliant way to remove an ad from a Single Page App view.
+            container.innerHTML = '';
+            container.style.display = 'none'; // Collapse the empty parent
+            
+            // Lock the ad slot for the rest of the session to prevent policy violations 
+            // caused by reloading/refreshing the ad if they exit Sleep Mode.
+            adDestroyed = true;
+            console.log("[AdsManager] Ad permanently removed for this session to protect sleep experience.");
+        }
+    }
+
+    return { init, handleSleepModeEnter };
 })();

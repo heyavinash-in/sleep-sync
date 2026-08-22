@@ -56,6 +56,7 @@ window.Timer = (function() {
         if (isSleeping) {
             body.classList.add('sleep-mode');
             window.UI.updateSleepModeBtn(true);
+            if (window.AdsManager) window.AdsManager.handleSleepModeEnter();
         } else {
             body.classList.remove('sleep-mode');
             window.UI.updateSleepModeBtn(false);
