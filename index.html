@@ -3,225 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SleepSync - Ambient & Magic Soundboard</title>
+    <title>SleepSync — Ambient Sounds & Sleep Timer</title>
+    <meta name="description" content="Mix calming ambient sounds, create your perfect sleep environment, and fall asleep with a customizable timer.">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #020617; color: #e2e8f0; font-family: system-ui, sans-serif; }
-        .active-card { background-color: rgba(49, 46, 129, 0.3); border-color: #6366f1; box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
-        .inactive-card { background-color: #0f172a; border-color: #1e293b; }
-        .magic-active { background-color: rgba(112, 26, 117, 0.3); border-color: #d946ef; box-shadow: 0 0 25px rgba(217, 70, 239, 0.2); }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="min-h-screen p-8 flex flex-col items-center selection:bg-indigo-500/30 transition-colors duration-1000" id="main-body">
-    <div class="max-w-3xl w-full mt-10">
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center selection:bg-indigo-500/30">
+    
+    <div class="max-w-3xl w-full">
         <!-- Header -->
-        <h1 class="text-5xl font-bold mb-4 text-center text-indigo-400 tracking-tight">SleepSync</h1>
-        <p class="text-slate-400 text-center mb-10 text-lg">Mix your perfect ambient background. Fall asleep faster.</p>
+        <header class="text-center mt-6 mb-12 hide-in-sleep flex flex-col items-center">
+            <h1 class="text-5xl font-bold mb-3 text-indigo-400 tracking-tight">SleepSync</h1>
+            <p class="text-slate-400 text-lg mb-6">Your personal ambient environment.</p>
+            <button id="btn-sleep-mode" onclick="toggleSleepMode()" class="px-6 py-2 rounded-full border bg-slate-800 text-indigo-200 border-slate-700 hover:border-indigo-500 transition-colors shadow-lg shadow-indigo-900/20 text-sm font-medium">
+                Enter Sleep Mode
+            </button>
+        </header>
 
-        <!-- Sleep Timer Section -->
-        <div class="mb-12 bg-slate-900/50 p-6 rounded-2xl border-2 border-slate-800 flex flex-col items-center shadow-lg">
-            <h2 class="text-xl mb-4 font-semibold text-indigo-300 flex items-center gap-2">
+        <!-- Main Mixer Section -->
+        <section id="mixer-container" class="mb-10 hidden transition-all duration-500">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-indigo-300">Current Mix</h2>
+                <button id="btn-save-mix" class="text-sm px-4 py-2 bg-slate-800 hover:bg-indigo-600 text-indigo-200 rounded-lg border border-slate-700 transition-colors hide-in-sleep">
+                    Save Mix
+                </button>
+            </div>
+            
+            <div id="active-mixer" class="space-y-3 mb-6">
+                <!-- Active sound rows injected here -->
+            </div>
+
+            <!-- Master Volume -->
+            <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
+                <div class="flex justify-between text-sm mb-3">
+                    <span class="font-medium text-slate-300">Master Volume</span>
+                </div>
+                <input type="range" id="master-volume" min="0" max="1" step="0.01" value="1" class="w-full accent-indigo-500">
+            </div>
+        </section>
+
+        <!-- Sound Library -->
+        <section class="mb-12 hide-in-sleep">
+            <h2 class="text-xl font-semibold text-slate-300 mb-4">Sound Library</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="sound-library">
+                <!-- Sound cards injected here -->
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 hide-in-sleep">
+            <!-- Presets -->
+            <section>
+                <h2 class="text-xl font-semibold text-slate-300 mb-4">Presets</h2>
+                <div class="flex flex-col gap-3" id="presets-list">
+                    <!-- Preset buttons injected here -->
+                </div>
+            </section>
+
+            <!-- Saved Mixes -->
+            <section>
+                <h2 class="text-xl font-semibold text-slate-300 mb-4">My Mixes</h2>
+                <div class="flex flex-col gap-3" id="saved-mixes-list">
+                    <!-- Saved mix rows injected here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Sleep Timer -->
+        <section class="mb-12 bg-slate-900/50 p-6 rounded-2xl border border-slate-800 flex flex-col items-center">
+            <h2 class="text-xl mb-6 font-semibold text-indigo-300 flex items-center gap-2">
                 <span>⏱️</span> Sleep Timer
             </h2>
-            <div class="flex flex-wrap justify-center gap-4 mb-4">
-                <button onclick="setTimer(15)" class="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors">15 min</button>
-                <button onclick="setTimer(30)" class="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors">30 min</button>
-                <button onclick="setTimer(60)" class="px-5 py-2.5 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors">1 hour</button>
-                <button onclick="clearTimer()" class="px-5 py-2.5 bg-red-900/30 hover:bg-red-900/60 rounded-xl text-red-300 font-medium transition-colors border border-red-900/50">Turn Off</button>
+            
+            <div id="timer-controls" class="w-full flex flex-col items-center">
+                <div class="flex flex-wrap justify-center gap-3 mb-6 w-full">
+                    <button onclick="startTimer(15)" class="flex-1 py-3 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors border border-slate-700 hover:border-indigo-500">15m</button>
+                    <button onclick="startTimer(30)" class="flex-1 py-3 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors border border-slate-700 hover:border-indigo-500">30m</button>
+                    <button onclick="startTimer(60)" class="flex-1 py-3 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors border border-slate-700 hover:border-indigo-500">1h</button>
+                </div>
+                <div class="flex items-center gap-3 w-full max-w-sm hide-in-sleep">
+                    <input type="number" id="custom-timer-input" min="1" placeholder="Custom mins" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <button onclick="startCustomTimer()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors whitespace-nowrap">Start</button>
+                </div>
             </div>
-            <div id="timer-display" class="text-2xl font-mono text-indigo-200 hidden bg-slate-950 px-6 py-2 rounded-lg border border-slate-800">00:00</div>
-        </div>
 
-        <!-- Sound Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-6" id="sound-grid">
-            <!-- Cards injected via JavaScript -->
-        </div>
+            <div id="timer-display-container" class="hidden flex flex-col items-center w-full">
+                <div id="countdown-text" class="text-5xl font-mono text-indigo-300 mb-6 font-light tracking-wider">00:00</div>
+                <button onclick="stopTimer()" class="px-8 py-3 bg-red-900/30 hover:bg-red-900/60 rounded-xl text-red-300 font-medium transition-colors border border-red-900/50">Stop Timer</button>
+            </div>
+        </section>
+
     </div>
 
+    <!-- Modular Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/presets.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
     <script>
-        // Set to local file paths as requested
-        const sounds = [
-            { id: 'rain', name: 'Heavy Rain', icon: '🌧️', file: './rain.mp3' },
-            { id: 'waves', name: 'Beach Waves', icon: '🌊', file: './beach.mp3' },
-            { id: 'fire', name: 'Campfire', icon: '🔥', file: './campfire.mp3' },
-            { id: 'forest', name: 'Night Forest', icon: '🌲', file: './forest.mp3' },
-            { id: 'wind', name: 'Howling Wind', icon: '💨', file: './wind.mp3' }
-        ];
-
-        // Magic Section Variables
-        const magicTracks = [
-            './1.mp3',
-            './2.mp3',
-            './3.mp3'
-        ];
-        let magicAudio = null;
-        let currentMagicIndex = 0;
-        let magicIsPlaying = false;
-        let magicVolume = 0.5;
-
-        const activeAudios = {};
-        
-        let timerInterval;
-        let targetTime;
-
-        // Function to build the UI cards
-        function renderGrid() {
-            const grid = document.getElementById('sound-grid');
-            grid.innerHTML = '';
-            
-            // 1. Render Normal Looping Sound Effects
-            sounds.forEach(sound => {
-                const isActive = activeAudios[sound.id] !== undefined;
-                const card = document.createElement('div');
-                card.className = `p-6 rounded-3xl flex flex-col items-center transition-all duration-500 border-2 cursor-pointer ${isActive ? 'active-card' : 'inactive-card hover:border-slate-700'}`;
-                
-                card.innerHTML = `
-                    <div onclick="toggleSound('${sound.id}')" class="text-6xl mb-4 transform transition-transform duration-300 hover:scale-110 select-none">${sound.icon}</div>
-                    <h3 class="text-lg font-medium mb-5 text-slate-300 pointer-events-none">${sound.name}</h3>
-                    <div class="w-full transition-all duration-500 ${isActive ? 'opacity-100 h-4' : 'opacity-0 h-0 invisible'}">
-                        <input type="range" min="0" max="1" step="0.01" value="${isActive ? activeAudios[sound.id].volume : 0.5}" 
-                            oninput="changeVolume('${sound.id}', this.value)" 
-                            onclick="event.stopPropagation()"
-                            class="w-full accent-indigo-500 cursor-pointer">
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-
-            // 2. Render Magic Playlist Card
-            const magicCard = document.createElement('div');
-            magicCard.className = `p-6 rounded-3xl flex flex-col items-center transition-all duration-500 border-2 cursor-pointer ${magicIsPlaying ? 'magic-active' : 'inactive-card hover:border-slate-700'}`;
-            
-            magicCard.innerHTML = `
-                <div onclick="toggleMagic()" class="text-6xl mb-2 transform transition-transform duration-300 hover:scale-110 select-none">✨</div>
-                <h3 class="text-lg font-semibold mb-1 text-fuchsia-300 pointer-events-none">Magic Music</h3>
-                <p class="text-xs text-fuchsia-200/50 mb-3 pointer-events-none uppercase tracking-wider font-semibold">
-                    ${magicIsPlaying ? 'Playing Track ' + (currentMagicIndex + 1) : 'Paused'}
-                </p>
-                <div class="w-full transition-all duration-500 ${magicIsPlaying ? 'opacity-100 h-4' : 'opacity-0 h-0 invisible'}">
-                    <input type="range" min="0" max="1" step="0.01" value="${magicVolume}" 
-                        oninput="changeMagicVolume(this.value)" 
-                        onclick="event.stopPropagation()"
-                        class="w-full accent-fuchsia-500 cursor-pointer">
-                </div>
-            `;
-            grid.appendChild(magicCard);
-        }
-
-        // --- Standard Sound Logic ---
-        function toggleSound(id) {
-            if (activeAudios[id]) {
-                activeAudios[id].pause();
-                delete activeAudios[id];
-            } else {
-                const sound = sounds.find(s => s.id === id);
-                const audio = new Audio(sound.file);
-                audio.loop = true; // Make sure sound effects loop infinitely
-                audio.volume = 0.5;
-                audio.play().catch(e => {
-                    console.error("Audio play failed. Make sure you downloaded the MP3!", e);
-                    alert("Cannot play sound. Did you download " + sound.file + " yet?");
-                    delete activeAudios[id];
-                });
-                activeAudios[id] = audio;
-            }
-            renderGrid();
-        }
-
-        function changeVolume(id, vol) {
-            if (activeAudios[id]) {
-                activeAudios[id].volume = parseFloat(vol);
-            }
-        }
-
-        // --- Magic Playlist Logic ---
-        function toggleMagic() {
-            if (magicIsPlaying) {
-                if (magicAudio) magicAudio.pause();
-                magicIsPlaying = false;
-            } else {
-                if (!magicAudio) {
-                    magicAudio = new Audio(magicTracks[currentMagicIndex]);
-                    magicAudio.volume = magicVolume;
-                    // When a track ends, play the next one automatically
-                    magicAudio.addEventListener('ended', playNextMagic);
-                }
-                magicAudio.play().catch(e => {
-                    console.error("Magic play failed", e);
-                    alert("Cannot play Magic music. Did you download " + magicTracks[currentMagicIndex] + " yet?");
-                });
-                magicIsPlaying = true;
-            }
-            renderGrid();
-        }
-
-        function playNextMagic() {
-            // Move to the next track, or loop back to 0 if at the end
-            currentMagicIndex = (currentMagicIndex + 1) % magicTracks.length;
-            
-            magicAudio.src = magicTracks[currentMagicIndex];
-            magicAudio.play().catch(e => console.error("Auto-play next track failed", e));
-            
-            // Re-render UI to show new track number
-            renderGrid();
-        }
-
-        function changeMagicVolume(vol) {
-            magicVolume = parseFloat(vol);
-            if (magicAudio) {
-                magicAudio.volume = magicVolume;
-            }
-        }
-
-        // --- Sleep Timer Logic ---
-        function setTimer(minutes) {
-            clearInterval(timerInterval);
-            targetTime = Date.now() + minutes * 60000;
-            const display = document.getElementById('timer-display');
-            display.classList.remove('hidden');
-            
-            // Update the clock every second
-            timerInterval = setInterval(() => {
-                const remaining = targetTime - Date.now();
-                if (remaining <= 0) {
-                    clearTimer();
-                    stopAllSounds();
-                } else {
-                    const mins = Math.floor(remaining / 60000);
-                    const secs = Math.floor((remaining % 60000) / 1000);
-                    display.innerText = `Stopping in: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                }
-            }, 1000);
-            
-            display.innerText = `Stopping in: ${minutes.toString().padStart(2, '0')}:00`;
-        }
-
-        function clearTimer() {
-            clearInterval(timerInterval);
-            document.getElementById('timer-display').classList.add('hidden');
-        }
-
-        function stopAllSounds() {
-            // 1. Stop all looping sound effects
-            for (const id in activeAudios) {
-                activeAudios[id].pause();
-                delete activeAudios[id];
-            }
-            
-            // 2. Stop the Magic playlist
-            if (magicAudio) {
-                magicAudio.pause();
-                magicIsPlaying = false;
-            }
-
-            renderGrid();
-            
-            // Gentle fade to black
-            document.getElementById('main-body').style.backgroundColor = "#000000";
-        }
-
-        // Initial render
-        renderGrid();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.UI) window.UI.init();
+        });
     </script>
 </body>
 </html>
