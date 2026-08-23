@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SleepSync Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/admin.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans antialiased overflow-hidden flex selection:bg-indigo-500/30">
+
+    <!-- Auth Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center">
+        <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl max-w-md w-full">
+            <h2 class="text-2xl font-bold text-indigo-400 mb-2">SleepSync Admin</h2>
+            <p class="text-slate-400 text-sm mb-6">Restricted access area.</p>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Email</label>
+                    <input type="email" id="auth-email" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div id="auth-error" class="text-red-400 text-sm hidden"></div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg transition-colors mt-2">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-xl font-bold text-indigo-400">SleepSync<span class="text-slate-500 text-sm ml-2 font-normal">Admin</span></h1>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto" id="admin-nav">
+            <button data-target="view-dashboard" class="nav-btn w-full text-left px-4 py-2 rounded-lg text-sm font-medium bg-indigo-900/40 text-indigo-300">Overview</button>
+            <button data-target="view-sounds" class="nav-btn w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">Sound Library</button>
+            <button data-target="view-presets" class="nav-btn w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">Presets</button>
+            <button data-target="view-layout" class="nav-btn w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">Layout & SEO</button>
+            <button data-target="view-magic" class="nav-btn w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">✨ Magic Editor</button>
+            <button data-target="view-settings" class="nav-btn w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors">Settings</button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <button onclick="window.AdminAuth.logout()" class="w-full text-left px-4 py-2 text-sm text-slate-500 hover:text-red-400 transition-colors">Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-950">
+        
+        <!-- Topbar: Draft/Publish Controls -->
+        <header class="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/50">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-slate-400 hover:text-white">☰</button>
+                <h2 id="current-view-title" class="text-lg font-medium text-slate-200">Overview</h2>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span id="draft-status" class="text-xs text-slate-500 mr-2">No unpublished changes</span>
+                <button onclick="window.AdminApp.saveDraft()" class="px-3 py-1.5 text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition-colors">Save Draft</button>
+                <button onclick="window.AdminApp.preview()" class="px-3 py-1.5 text-sm bg-indigo-900/30 hover:bg-indigo-900/60 text-indigo-300 rounded border border-indigo-500/50 transition-colors">Preview</button>
+                <button onclick="window.AdminApp.publish()" class="px-4 py-1.5 text-sm bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded transition-colors shadow-lg shadow-emerald-900/20">Publish</button>
+            </div>
+        </header>
+
+        <!-- Views Container -->
+        <div class="flex-1 overflow-y-auto p-6 md:p-8 relative" id="views-container">
+            
+            <!-- View: Dashboard -->
+            <div id="view-dashboard" class="view-section block">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                        <div class="text-slate-400 text-xs font-medium mb-1 uppercase tracking-wider">Today's Visitors</div>
+                        <div class="text-3xl font-light text-slate-200" id="stat-visitors">--</div>
+                    </div>
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                        <div class="text-slate-400 text-xs font-medium mb-1 uppercase tracking-wider">Active Sessions</div>
+                        <div class="text-3xl font-light text-slate-200" id="stat-sessions">--</div>
+                    </div>
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                        <div class="text-slate-400 text-xs font-medium mb-1 uppercase tracking-wider">Top Preset</div>
+                        <div class="text-xl font-light text-slate-200 mt-2 truncate" id="stat-preset">--</div>
+                    </div>
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                        <div class="text-slate-400 text-xs font-medium mb-1 uppercase tracking-wider">Top Sound</div>
+                        <div class="text-xl font-light text-slate-200 mt-2 truncate" id="stat-sound">--</div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 flex flex-col items-center justify-center min-h-[300px]">
+                    <span class="text-4xl mb-3">📊</span>
+                    <h3 class="text-slate-300 font-medium mb-2">Analytics Not Connected</h3>
+                    <p class="text-slate-500 text-sm text-center max-w-md">Connect Google Analytics 4 in Settings to view historical traffic, real-time visitors, and event engagement metrics.</p>
+                </div>
+            </div>
+
+            <!-- View: Sound Library -->
+            <div id="view-sounds" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <p class="text-slate-400 text-sm">Manage individual audio tracks available in the mixer.</p>
+                    <button onclick="window.AdminUI.openSoundModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">+ Add Sound</button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-slate-800/50 text-xs uppercase font-medium text-slate-500">
+                            <tr>
+                                <th class="px-6 py-3">Icon & Name</th>
+                                <th class="px-6 py-3">Description</th>
+                                <th class="px-6 py-3">File</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sounds-table-body" class="divide-y divide-slate-800">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- View: Presets -->
+            <div id="view-presets" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <p class="text-slate-400 text-sm">Manage curated 1-click sound environments.</p>
+                    <button onclick="window.AdminUI.openPresetModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">+ Add Preset</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="presets-grid">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- View: Layout -->
+            <div id="view-layout" class="view-section hidden">
+                <p class="text-slate-400 text-sm mb-6">Drag and drop to reorder sections on the public homepage. Uncheck to hide.</p>
+                
+                <div class="max-w-2xl bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2" id="layout-list">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- View: Magic Editor -->
+            <div id="view-magic" class="view-section hidden max-w-3xl">
+                <div class="bg-gradient-to-br from-indigo-900/20 to-fuchsia-900/10 border border-indigo-500/20 p-6 rounded-2xl mb-6">
+                    <h3 class="text-lg font-medium text-indigo-300 mb-2 flex items-center gap-2">✨ Describe your change</h3>
+                    <p class="text-slate-400 text-sm mb-4">Write naturally. The Magic Editor will analyze your intent and propose a structured configuration update.</p>
+                    <div class="flex gap-3">
+                        <input type="text" id="magic-prompt" placeholder="e.g., Add a thunderstorm sound with a ⛈️ icon..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:border-indigo-500 focus:outline-none">
+                        <button onclick="window.AdminMagic.process()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors whitespace-nowrap">Generate</button>
+                    </div>
+                </div>
+                
+                <div id="magic-result" class="hidden">
+                    <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wider mb-3">Proposed Configuration</h4>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 font-mono text-sm text-slate-300 whitespace-pre-wrap" id="magic-output">
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="window.AdminMagic.apply()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded transition-colors">Apply to Draft</button>
+                        <button onclick="document.getElementById('magic-result').classList.add('hidden')" class="px-4 py-2 text-slate-400 hover:text-white transition-colors">Discard</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Settings -->
+            <div id="view-settings" class="view-section hidden max-w-2xl">
+                <div class="space-y-6">
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                        <h3 class="text-lg font-medium text-slate-200 mb-4">Site Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Meta Title</label>
+                                <input type="text" id="setting-title" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-slate-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Meta Description</label>
+                                <textarea id="setting-desc" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-slate-200"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                        <h3 class="text-lg font-medium text-slate-200 mb-4">Integrations Status</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-center justify-between">
+                                <span class="text-slate-400">Firebase Auth</span>
+                                <span class="text-emerald-400 flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-emerald-400"></div> Connected</span>
+                            </li>
+                            <li class="flex items-center justify-between">
+                                <span class="text-slate-400">Firestore (Config DB)</span>
+                                <span class="text-emerald-400 flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-emerald-400"></div> Connected</span>
+                            </li>
+                            <li class="flex items-center justify-between">
+                                <span class="text-slate-400">Google AdSense</span>
+                                <span class="text-emerald-400 flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-emerald-400"></div> Configured</span>
+                            </li>
+                            <li class="flex items-center justify-between pt-3 border-t border-slate-800">
+                                <span class="text-slate-400">Google Analytics 4</span>
+                                <span class="text-amber-400 text-xs px-2 py-1 bg-amber-400/10 rounded">Requires Setup</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-red-900/10 p-6 rounded-xl border border-red-900/30">
+                        <h3 class="text-lg font-medium text-red-400 mb-2">Danger Zone</h3>
+                        <p class="text-sm text-slate-500 mb-4">Revert the live configuration to the previously published version if an error occurs.</p>
+                        <button onclick="window.AdminApp.rollback()" class="px-4 py-2 border border-red-500/50 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors text-sm font-medium">Rollback to Previous Version</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modals (Injected by JS) -->
+    <div id="modal-container"></div>
+
+    <script src="../js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/magic.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -2,6 +2,10 @@ window.Presets = (function() {
     function loadPreset(presetId) {
         const preset = window.SleepData.presets.find(p => p.id === presetId);
         if (!preset) return;
+
+        if (window.AppAnalytics) {
+            window.AppAnalytics.logEvent('preset_selected', { preset_id: presetId });
+        }
         
         window.AudioEngine.stopAll();
         

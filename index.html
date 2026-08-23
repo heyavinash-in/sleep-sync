@@ -113,7 +113,14 @@
 
     </div>
 
+    <!-- Firebase SDKs (Required for Realtime Config & Analytics) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
+
     <!-- Modular Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-sync.js"></script>
     <script src="js/config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/audio.js"></script>
@@ -124,6 +131,7 @@
     <script src="js/ads.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            if (window.FirebaseSync) window.FirebaseSync.init();
             if (window.UI) window.UI.init();
             if (window.AdsManager) window.AdsManager.init();
         });

@@ -34,13 +34,16 @@ window.AudioEngine = (function() {
             if (activeNodes[id]) {
                 activeNodes[id].audio.pause();
                 delete activeNodes[id];
+                if (window.AppAnalytics) window.AppAnalytics.logEvent('sound_stopped', { sound_id: id });
             } else {
                 const audio = new Audio(file);
                 audio.loop = true;
                 activeNodes[id] = { audio, targetVolume: volume };
                 updateActualVolumes();
                 
-                audio.play().catch(e => {
+                audio.play().then(() => {
+                    if (window.AppAnalytics) window.AppAnalytics.logEvent('sound_play', { sound_id: id });
+                }).catch(e => {
                     console.error("Audio play failed:", e);
                     delete activeNodes[id];
                     alert('Cannot play sound. Make sure ' + file + ' is in the folder.');
