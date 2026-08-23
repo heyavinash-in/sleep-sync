@@ -1,13 +1,13 @@
 // Placeholder for Firebase Config
 // IMPORTANT: The administrator must populate these fields from their Firebase Console
 window.FirebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    measurementId: "G-YOUR_MEASUREMENT_ID"
+    apiKey: "AIzaSyAkfb4uqpzwvli79vPtd3LWfhmOjC3NStk",
+    authDomain: "sleep-sync-464e1.firebaseapp.com",
+    projectId: "sleep-sync-464e1",
+    storageBucket: "sleep-sync-464e1.firebasestorage.app",
+    messagingSenderId: "368284657244",
+    appId: "1:368284657244:web:9dd5520af0c986c9d4a899",
+    measurementId: "G-7FNZSZG20S"
 };
 
 // Initialize Firebase only if the config has been populated
