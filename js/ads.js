@@ -9,30 +9,29 @@ window.AdsManager = (function() {
         if (!window.AppConfig.ADS_ENABLED) {
             // Development Placeholder
             container.innerHTML = `
-                <div class="w-full min-h-[90px] max-w-[728px] mx-auto flex flex-col items-center justify-center bg-slate-900/30 border border-slate-800/50 rounded-xl text-slate-500 text-sm">
+                <div class="w-full min-h-[90px] max-w-[728px] mx-auto flex flex-col items-center justify-center bg-slate-900/30 border border-slate-800/50 rounded-xl text-slate-500 text-sm panel-3d">
                     <span class="mb-1 text-slate-600 font-medium tracking-wide text-xs uppercase">Advertisement</span>
-                    <span class="text-xs text-slate-700">(728x90 responsive reserved space)</span>
+                    <span class="text-xs text-slate-700">(Native Ad reserved space)</span>
                 </div>
             `;
         } else {
-            // Production Ad Insertion
+            // Production Ad Insertion - Native Ad Network
             container.innerHTML = `
-                <div class="w-full min-h-[90px] flex justify-center items-center overflow-hidden">
-                    <!-- SleepSync_Main_Banner -->
-                    <ins class="adsbygoogle"
-                         style="display:block; width: 100%;"
-                         data-ad-client="${window.AppConfig.PUBLISHER_ID}"
-                         data-ad-slot="${window.AppConfig.CONTENT_AD_SLOT}"
-                         data-ad-format="auto"
-                         data-full-width-responsive="true"></ins>
+                <div class="w-full flex justify-center items-center overflow-hidden panel-3d p-4 hide-in-sleep">
+                    <!-- Native Banner Ad Container -->
+                    <div id="container-2f6987ff81cedfe8bbf53e281494d0ea"></div>
                 </div>
             `;
             
             try {
-                // Initialize the specific ad slot
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                // Dynamically inject the script so the browser actually executes it
+                const script = document.createElement('script');
+                script.async = true;
+                script.dataset.cfasync = "false";
+                script.src = "//pl31390608.profitableratecpmnetwork.com/2f6987ff81cedfe8bbf53e281494d0ea/invoke.js";
+                document.body.appendChild(script);
             } catch (e) {
-                console.error("[AdsManager] Failed to load AdSense", e);
+                console.error("[AdsManager] Failed to load Native Ad", e);
             }
         }
     }
