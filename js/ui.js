@@ -6,24 +6,24 @@ window.UI = (function() {
         
         // Render Ambient Sounds
         window.SleepData.sounds.forEach(sound => {
-            const isActive = !!window.AudioEngine.getActiveSounds()[sound.id];
+            const isActive = !!window.AudioEngine.getActiveNodes()[sound.id];
             
-            const card = document.createElement('div');
-            card.className = `p-4 rounded-2xl flex flex-col items-center cursor-pointer card-hover border-2 ${
-                isActive ? 'bg-indigo-900/30 border-indigo-500 shadow-lg' : 'bg-slate-900 border-slate-800'
-            }`;
-            
-            card.onclick = () => {
+            const btn = document.createElement('button');
+            btn.className = `btn-3d p-6 flex flex-col items-center justify-center w-full gap-4 ${isActive ? 'active' : ''}`;
+            btn.onclick = () => {
                 window.AudioEngine.toggleSound(sound.id, sound.file);
-                renderAll();
+                btn.classList.toggle('active');
+                renderMixer();
             };
-
-            card.innerHTML = `
-                <div class="text-4xl mb-3">${sound.icon}</div>
-                <h3 class="font-medium text-slate-200">${sound.name}</h3>
-                <p class="text-xs text-slate-400 text-center mt-1">${sound.description}</p>
+            
+            btn.innerHTML = `
+                <span class="text-4xl drop-shadow-md">${sound.icon}</span>
+                <div class="text-center">
+                    <span class="block font-semibold text-slate-200 tracking-wide">${sound.name}</span>
+                    <span class="block text-xs text-slate-400 mt-1">${sound.description}</span>
+                </div>
             `;
-            soundLibrary.appendChild(card);
+            soundLibrary.appendChild(btn);
         });
 
         // Render Magic Card
@@ -66,28 +66,27 @@ window.UI = (function() {
         activeMixer.innerHTML = '';
 
         // Render ambient sound rows
-        activeIds.forEach(id => {
+        const activeNodes = window.AudioEngine.getActiveNodes();
+        Object.keys(activeNodes).forEach(id => {
             const sound = window.SleepData.sounds.find(s => s.id === id);
             if (!sound) return;
 
-            const currentVol = active[id].targetVolume;
-            
             const row = document.createElement('div');
-            row.className = 'flex items-center gap-4 bg-slate-900 p-4 rounded-xl border border-slate-800';
+            row.className = 'flex flex-col sm:flex-row items-center gap-4 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/50 shadow-inner mb-3';
             
             row.innerHTML = `
-                <div class="text-2xl w-10 text-center">${sound.icon}</div>
-                <div class="flex-1">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="font-medium text-indigo-200">${sound.name}</span>
-                        <span class="text-slate-400">${Math.round(currentVol * 100)}%</span>
+                <div class="text-3xl w-12 text-center drop-shadow-md">${sound.icon}</div>
+                <div class="flex-1 w-full">
+                    <div class="flex justify-between text-sm mb-3">
+                        <span class="font-medium text-slate-200">${sound.name}</span>
+                        <span class="text-slate-400 font-mono text-xs">${Math.round(activeNodes[id].targetVolume * 100)}%</span>
                     </div>
-                    <input type="range" min="0" max="1" step="0.01" value="${currentVol}" 
-                        class="w-full accent-indigo-500"
+                    <input type="range" min="0" max="1" step="0.01" value="${activeNodes[id].targetVolume}" 
+                        class="slider-3d"
                         oninput="window.AudioEngine.setVolume('${id}', parseFloat(this.value)); window.UI.renderMixer();">
                 </div>
-                <button class="text-slate-500 hover:text-red-400 p-2 ml-2 transition-colors" onclick="window.AudioEngine.toggleSound('${id}', '${sound.file}'); window.UI.renderAll();" aria-label="Remove sound">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button class="btn-3d p-3 text-slate-500 hover:text-red-400 transition-colors rounded-xl" onclick="window.AudioEngine.toggleSound('${id}', '${sound.file}'); window.UI.renderAll();" aria-label="Remove sound">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             `;
             activeMixer.appendChild(row);
@@ -96,21 +95,22 @@ window.UI = (function() {
         // Render Magic music row
         if (magicState.isPlaying) {
             const row = document.createElement('div');
-            row.className = 'flex items-center gap-4 bg-slate-900 p-4 rounded-xl border border-fuchsia-900/50';
+            row.className = 'flex flex-col sm:flex-row items-center gap-4 bg-slate-900/60 p-5 rounded-2xl border border-fuchsia-900/40 shadow-inner mb-3 relative overflow-hidden';
             
             row.innerHTML = `
-                <div class="text-2xl w-10 text-center">✨</div>
-                <div class="flex-1">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="font-medium text-fuchsia-300">Magic Music (Track ${magicState.trackNum})</span>
-                        <span class="text-slate-400">${Math.round(magicState.volume * 100)}%</span>
+                <div class="absolute inset-0 bg-fuchsia-900/10 blur-xl"></div>
+                <div class="text-3xl w-12 text-center relative z-10 drop-shadow-md">✨</div>
+                <div class="flex-1 w-full relative z-10">
+                    <div class="flex justify-between text-sm mb-3">
+                        <span class="font-semibold text-fuchsia-300">Magic Music (Track ${magicState.trackNum})</span>
+                        <span class="text-fuchsia-400/70 font-mono text-xs">${Math.round(magicState.volume * 100)}%</span>
                     </div>
                     <input type="range" min="0" max="1" step="0.01" value="${magicState.volume}" 
-                        class="w-full accent-fuchsia-500"
+                        class="slider-3d"
                         oninput="window.AudioEngine.setMagicVolume(this.value); window.UI.renderMixer();">
                 </div>
-                <button class="text-slate-500 hover:text-red-400 p-2 ml-2 transition-colors" onclick="window.AudioEngine.toggleMagic(); window.UI.renderAll();" aria-label="Remove Magic">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button class="btn-3d p-3 text-fuchsia-500/70 hover:text-red-400 transition-colors rounded-xl relative z-10" onclick="window.AudioEngine.toggleMagic(); window.UI.renderAll();" aria-label="Remove Magic">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             `;
             activeMixer.appendChild(row);
@@ -124,11 +124,11 @@ window.UI = (function() {
 
         window.SleepData.presets.forEach(preset => {
             const btn = document.createElement('button');
-            btn.className = "flex items-center gap-3 p-3 bg-slate-900 border border-slate-800 rounded-xl hover:border-indigo-500 hover:bg-indigo-900/30 transition-all text-left";
+            btn.className = "btn-3d flex items-center gap-4 p-4 text-left w-full";
             btn.onclick = () => window.Presets.loadPreset(preset.id);
             btn.innerHTML = `
-                <span class="text-2xl">${preset.icon}</span>
-                <span class="font-medium text-slate-300">${preset.name}</span>
+                <span class="text-3xl drop-shadow-md">${preset.icon}</span>
+                <span class="font-semibold text-slate-200 tracking-wide">${preset.name}</span>
             `;
             presetsContainer.appendChild(btn);
         });
@@ -141,13 +141,13 @@ window.UI = (function() {
 
         const mixes = window.Storage.getMixes();
         if (mixes.length === 0) {
-            container.innerHTML = '<p class="text-slate-500 text-sm">Your saved mixes will appear here.</p>';
+            container.innerHTML = '<p class="text-slate-500/70 text-sm font-medium">Your saved mixes will appear here.</p>';
             return;
         }
 
         mixes.forEach(mix => {
             const row = document.createElement('div');
-            row.className = 'flex justify-between items-center p-3 mb-2 bg-slate-900 border border-slate-800 rounded-xl hover:border-indigo-500 transition-all';
+            row.className = 'btn-3d flex justify-between items-center p-4 mb-3 w-full';
             
             let soundNames = Object.keys(mix.mix).map(id => {
                 const s = window.SleepData.sounds.find(x => x.id === id);
@@ -158,11 +158,11 @@ window.UI = (function() {
             }
 
             row.innerHTML = `
-                <div class="flex-1 cursor-pointer" onclick="window.Storage.loadMix('${mix.id}')">
-                    <h3 class="font-medium text-slate-200">${mix.name}</h3>
-                    <p class="text-xs text-slate-500 mt-1">${soundNames.join(' • ')}</p>
+                <div class="flex-1 cursor-pointer text-left" onclick="window.Storage.loadMix('${mix.id}')">
+                    <h3 class="font-semibold text-slate-200 tracking-wide">${mix.name}</h3>
+                    <p class="text-xs text-slate-400 mt-1 font-light">${soundNames.join(' ✨ ')}</p>
                 </div>
-                <button class="text-slate-500 hover:text-red-400 p-2 ml-4" onclick="window.UI.handleDeleteMix('${mix.id}')" aria-label="Delete Mix">
+                <button class="text-slate-500 hover:text-red-400 p-2 ml-4 rounded-lg bg-slate-900/50 shadow-inner" onclick="window.UI.handleDeleteMix('${mix.id}')" aria-label="Delete Mix">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
             `;

@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SleepSync — Ambient Sounds & Sleep Timer</title>
+    <title>NIDRAA — 3D Ambient Soundscape</title>
     <meta name="description" content="Mix calming ambient sounds, create your perfect sleep environment, and fall asleep with a customizable timer.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
@@ -12,69 +18,78 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1690886583473471" crossorigin="anonymous"></script>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center selection:bg-indigo-500/30">
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center text-slate-200 selection:bg-violet-500/30">
     
-    <div class="max-w-3xl w-full">
+    <div class="max-w-4xl w-full">
         <!-- 1. Header -->
         <header class="text-center mt-6 mb-12 hide-in-sleep flex flex-col items-center">
-            <h1 class="text-5xl font-bold mb-3 text-indigo-400 tracking-tight">SleepSync</h1>
-            <p class="text-slate-400 text-lg mb-6">Your personal ambient environment.</p>
-            <button id="btn-sleep-mode" onclick="toggleSleepMode()" class="px-6 py-2 rounded-full border bg-slate-800 text-indigo-200 border-slate-700 hover:border-indigo-500 transition-colors shadow-lg shadow-indigo-900/20 text-sm font-medium">
-                Enter Sleep Mode
+            <h1 class="text-6xl md:text-7xl font-extrabold mb-3 text-transparent bg-clip-text bg-gradient-to-br from-violet-300 to-purple-600 drop-shadow-xl tracking-tight" style="line-height: 1.2;">NIDRAA</h1>
+            <p class="text-slate-400 text-lg md:text-xl mb-8 font-light">Your personal 3D ambient environment.</p>
+            <button id="btn-sleep-mode" onclick="toggleSleepMode()" class="btn-3d px-8 py-3 text-violet-200 text-sm font-semibold tracking-wide uppercase flex items-center gap-2">
+                <span class="text-xl">🌙</span> Enter Sleep Mode
             </button>
         </header>
 
         <!-- 2. Sound Library -->
-        <section class="mb-12 hide-in-sleep">
-            <h2 class="text-xl font-semibold text-slate-300 mb-4">Sound Library</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="sound-library">
+        <section class="mb-12 hide-in-sleep panel-3d p-6 md:p-8">
+            <h2 class="text-2xl font-semibold text-slate-200 mb-6 flex items-center gap-3">
+                <span class="text-violet-400">✨</span> Sound Library
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" id="sound-library">
                 <!-- Sound cards injected here -->
             </div>
         </section>
 
         <!-- 3 & 4. Current Mix & Mixer -->
-        <section id="mixer-container" class="mb-10 hidden transition-all duration-500">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-indigo-300">Current Mix</h2>
-                <button id="btn-save-mix" class="text-sm px-4 py-2 bg-slate-800 hover:bg-indigo-600 text-indigo-200 rounded-lg border border-slate-700 transition-colors hide-in-sleep">
+        <section id="mixer-container" class="mb-12 hidden transition-all duration-500 panel-3d p-6 md:p-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-semibold text-violet-300 flex items-center gap-3">
+                    <span>🎚️</span> Current Mix
+                </h2>
+                <button id="btn-save-mix" class="btn-3d px-6 py-2 text-sm font-medium text-violet-200 hide-in-sleep">
                     Save Mix
                 </button>
             </div>
             
-            <div id="active-mixer" class="space-y-3 mb-6">
+            <div id="active-mixer" class="space-y-4 mb-8">
                 <!-- Active sound rows injected here -->
             </div>
 
             <!-- Master Volume -->
-            <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800">
-                <div class="flex justify-between text-sm mb-3">
-                    <span class="font-medium text-slate-300">Master Volume</span>
+            <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/50 shadow-inner">
+                <div class="flex justify-between text-sm mb-4">
+                    <span class="font-medium text-slate-300 uppercase tracking-wider text-xs">Master Volume</span>
                 </div>
-                <input type="range" id="master-volume" min="0" max="1" step="0.01" value="1" class="w-full accent-indigo-500">
+                <input type="range" id="master-volume" min="0" max="1" step="0.01" value="1" class="slider-3d">
             </div>
         </section>
 
         <!-- 5. Sleep Timer -->
-        <section class="mb-12 bg-slate-900/50 p-6 rounded-2xl border border-slate-800 flex flex-col items-center">
-            <h2 class="text-xl mb-6 font-semibold text-indigo-300 flex items-center gap-2">
-                <span>⏱️</span> Sleep Timer
+        <section class="mb-12 panel-3d p-6 md:p-8 flex flex-col items-center relative overflow-hidden">
+            <!-- Decorative background element -->
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-violet-600/10 rounded-full blur-3xl"></div>
+            
+            <h2 class="text-2xl mb-8 font-semibold text-violet-300 flex items-center gap-3 relative z-10">
+                <span>⏳</span> Sleep Timer
             </h2>
             
-            <div id="timer-controls" class="w-full flex flex-col items-center">
-                <div class="flex flex-wrap justify-center gap-3 mb-6 w-full">
-                    <button onclick="startTimer(15)" class="flex-1 py-3 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors border border-slate-700 hover:border-indigo-500">15m</button>
-                    <button onclick="startTimer(30)" class="flex-1 py-3 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors border border-slate-700 hover:border-indigo-500">30m</button>
-                    <button onclick="startTimer(60)" class="flex-1 py-3 bg-slate-800 hover:bg-indigo-600 rounded-xl font-medium transition-colors border border-slate-700 hover:border-indigo-500">1h</button>
+            <div id="timer-controls" class="w-full flex flex-col items-center relative z-10">
+                <div class="grid grid-cols-3 gap-3 md:gap-6 mb-8 w-full max-w-lg">
+                    <button onclick="startTimer(15)" class="btn-3d py-4 font-semibold text-slate-300">15m</button>
+                    <button onclick="startTimer(30)" class="btn-3d py-4 font-semibold text-slate-300">30m</button>
+                    <button onclick="startTimer(60)" class="btn-3d py-4 font-semibold text-slate-300">1h</button>
                 </div>
-                <div class="flex items-center gap-3 w-full max-w-sm hide-in-sleep">
-                    <input type="number" id="custom-timer-input" min="1" placeholder="Custom mins" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <button onclick="startCustomTimer()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors whitespace-nowrap">Start</button>
+                <div class="flex flex-col sm:flex-row items-center gap-4 w-full max-w-lg hide-in-sleep">
+                    <div class="relative w-full">
+                        <input type="number" id="custom-timer-input" min="1" placeholder="Custom mins" class="w-full bg-slate-900 border border-slate-700/50 rounded-xl px-5 py-3 text-slate-200 focus:outline-none focus:border-violet-500 shadow-inner transition-colors">
+                    </div>
+                    <button onclick="startCustomTimer()" class="btn-3d px-8 py-3 text-violet-200 font-semibold whitespace-nowrap w-full sm:w-auto">Start Timer</button>
                 </div>
             </div>
 
-            <div id="timer-display-container" class="hidden flex flex-col items-center w-full">
-                <div id="countdown-text" class="text-5xl font-mono text-indigo-300 mb-6 font-light tracking-wider">00:00</div>
-                <button onclick="stopTimer()" class="px-8 py-3 bg-red-900/30 hover:bg-red-900/60 rounded-xl text-red-300 font-medium transition-colors border border-red-900/50">Stop Timer</button>
+            <div id="timer-display-container" class="hidden flex flex-col items-center w-full relative z-10">
+                <div id="countdown-text" class="text-7xl md:text-8xl font-light text-transparent bg-clip-text bg-gradient-to-b from-slate-100 to-slate-400 mb-8 tracking-tight" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">00:00</div>
+                <button onclick="stopTimer()" class="btn-3d px-10 py-4 text-red-400 font-semibold uppercase tracking-wider text-sm w-full max-w-xs">Stop Timer</button>
             </div>
         </section>
 
@@ -85,30 +100,34 @@
 
         <!-- 7 & 8. Presets and My Mixes -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 hide-in-sleep">
-            <section>
-                <h2 class="text-xl font-semibold text-slate-300 mb-4">Presets</h2>
-                <div class="flex flex-col gap-3" id="presets-list">
+            <section class="panel-3d p-6 md:p-8">
+                <h2 class="text-2xl font-semibold text-slate-200 mb-6 flex items-center gap-3">
+                    <span class="text-violet-400">🌌</span> Presets
+                </h2>
+                <div class="flex flex-col gap-4" id="presets-list">
                     <!-- Preset buttons injected here -->
                 </div>
             </section>
-            <section>
-                <h2 class="text-xl font-semibold text-slate-300 mb-4">My Mixes</h2>
-                <div class="flex flex-col gap-3" id="saved-mixes-list">
+            <section class="panel-3d p-6 md:p-8">
+                <h2 class="text-2xl font-semibold text-slate-200 mb-6 flex items-center gap-3">
+                    <span class="text-violet-400">💾</span> My Mixes
+                </h2>
+                <div class="flex flex-col gap-4" id="saved-mixes-list">
                     <!-- Saved mix rows injected here -->
                 </div>
             </section>
         </div>
 
         <!-- 9. Helpful Info / SEO -->
-        <section class="mb-12 hide-in-sleep bg-slate-900/20 p-6 md:p-8 rounded-2xl border border-slate-800/30 text-slate-400 text-sm leading-relaxed mx-auto">
-            <h2 class="text-lg font-semibold text-slate-300 mb-3">How SleepSync Works</h2>
-            <p class="mb-4">SleepSync is designed to help you create your perfect ambient environment. Whether you are trying to focus on work, relax after a long day, or fall asleep peacefully, surrounding yourself with the right acoustic atmosphere can drastically improve your mental state.</p>
+        <section class="mb-12 hide-in-sleep panel-3d p-8 md:p-10 text-slate-400 text-base leading-relaxed max-w-3xl mx-auto text-center md:text-left">
+            <h2 class="text-xl font-bold text-slate-200 mb-4">How NIDRAA Works</h2>
+            <p class="mb-6">NIDRAA is designed to help you create your perfect 3D ambient environment. Whether you are trying to focus on work, relax after a long day, or fall asleep peacefully, surrounding yourself with the right acoustic atmosphere can drastically improve your mental state.</p>
             
-            <h3 class="text-md font-semibold text-slate-300 mb-2 mt-6">Create Your Perfect Ambient Environment</h3>
-            <p class="mb-4">Use the sound library to blend multiple acoustic tracks together. Mix the deep rumble of a campfire with the soft pitter-patter of rain, or combine ocean waves with a howling wind. You have complete control over the individual volume of every element, allowing you to sculpt the exact frequency masking you need to block out distractions.</p>
+            <h3 class="text-lg font-bold text-slate-200 mb-3 mt-8">Create Your Perfect Ambient Environment</h3>
+            <p class="mb-6">Use the tactile 3D sound library to blend multiple acoustic tracks together. Mix the deep rumble of a campfire with the soft pitter-patter of rain, or combine ocean waves with a howling wind. You have complete control over the individual volume of every element.</p>
             
-            <h3 class="text-md font-semibold text-slate-300 mb-2 mt-6">Intelligent Sleep Timer</h3>
-            <p class="mb-2">Falling asleep with audio playing shouldn't mean being jolted awake when it abruptly stops. Our intelligent Sleep Timer gradually fades your mix into silence over the final 30 seconds of your session, ensuring your transition into deep sleep remains uninterrupted.</p>
+            <h3 class="text-lg font-bold text-slate-200 mb-3 mt-8">Intelligent Sleep Timer</h3>
+            <p class="mb-2">Falling asleep with audio playing shouldn't mean being jolted awake when it abruptly stops. Our intelligent Sleep Timer gradually fades your mix into silence over the final 30 seconds of your session, ensuring your transition into deep sleep remains completely uninterrupted.</p>
         </section>
 
     </div>

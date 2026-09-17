@@ -94,3 +94,74 @@ body.sleep-mode {
   justify-content: center;
   align-items: center;
 }
+
+
+/* NIDRAA 3D UI OVERHAUL */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #0f172a;
+    background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #050510 70%);
+    background-attachment: fixed;
+}
+
+.panel-3d {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7));
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border-radius: 1.5rem;
+}
+
+.btn-3d {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    box-shadow: 0 8px 20px -3px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 4px solid #020617;
+    border-radius: 1.2rem;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-3d:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -3px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.2);
+}
+
+.btn-3d:active, .btn-3d.active {
+    transform: translateY(4px);
+    border-bottom-width: 0px;
+    margin-bottom: 4px;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
+    background: linear-gradient(145deg, #0f172a, #1e293b);
+}
+
+.btn-3d.active {
+    border: 1px solid rgba(139, 92, 246, 0.6);
+    box-shadow: inset 0 4px 12px rgba(0,0,0,0.9), 0 0 20px rgba(139, 92, 246, 0.25);
+}
+
+input[type=range].slider-3d {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range].slider-3d::-webkit-slider-runnable-track {
+    height: 14px;
+    background: #020617;
+    border-radius: 7px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.9), inset 0 -1px 1px rgba(255,255,255,0.05);
+}
+input[type=range].slider-3d::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 28px;
+    width: 28px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #c4b5fd, #7c3aed);
+    margin-top: -7px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+input[type=range].slider-3d::-webkit-slider-thumb:active {
+    transform: scale(0.9);
+}
+
