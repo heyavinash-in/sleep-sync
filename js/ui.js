@@ -6,7 +6,7 @@ window.UI = (function() {
         
         // Render Ambient Sounds
         window.SleepData.sounds.forEach(sound => {
-            const isActive = !!window.AudioEngine.getActiveNodes()[sound.id];
+            const isActive = !!window.AudioEngine.getActiveSounds()[sound.id];
             
             const btn = document.createElement('button');
             btn.className = `btn-3d p-6 flex flex-col items-center justify-center w-full gap-4 ${isActive ? 'active' : ''}`;
@@ -27,46 +27,42 @@ window.UI = (function() {
         });
 
         // Render Magic Card
-        const magicState = window.AudioEngine.getMagicState();
-        const magicCard = document.createElement('div');
-        magicCard.className = `p-4 rounded-2xl flex flex-col items-center cursor-pointer card-hover border-2 ${
-            magicState.isPlaying ? 'bg-fuchsia-900/30 border-fuchsia-500 shadow-lg shadow-fuchsia-900/20' : 'bg-slate-900 border-slate-800'
-        }`;
-        
+        const magicIsActive = window.AudioEngine.getMagicState().isPlaying;
+        const magicCard = document.createElement('button');
+        magicCard.className = `btn-3d p-6 flex flex-col items-center justify-center w-full gap-4 border-fuchsia-900/50 ${magicIsActive ? 'active' : ''}`;
         magicCard.onclick = () => {
             window.AudioEngine.toggleMagic();
-            renderAll();
+            magicCard.classList.toggle('active');
+            renderMixer();
         };
-
         magicCard.innerHTML = `
-            <div class="text-4xl mb-3">✨</div>
-            <h3 class="font-medium ${magicState.isPlaying ? 'text-fuchsia-300' : 'text-slate-200'}">Magic Music</h3>
-            <p class="text-xs text-slate-400 text-center mt-1">
-                ${magicState.isPlaying ? 'Playing Track ' + magicState.trackNum : 'Romantic Playlist'}
-            </p>
+            <span class="text-4xl drop-shadow-md">✨</span>
+            <div class="text-center">
+                <span class="block font-semibold text-fuchsia-300 tracking-wide">Magic</span>
+                <span class="block text-xs text-fuchsia-400/70 mt-1">Romantic</span>
+            </div>
         `;
         soundLibrary.appendChild(magicCard);
     }
 
     function renderMixer() {
         const activeMixer = document.getElementById('active-mixer');
-        const activeContainer = document.getElementById('mixer-container');
-        if (!activeMixer || !activeContainer) return;
+        const mixerContainer = document.getElementById('mixer-container');
+        if (!activeMixer || !mixerContainer) return;
 
-        const active = window.AudioEngine.getActiveSounds();
-        const activeIds = Object.keys(active);
+        const activeNodes = window.AudioEngine.getActiveSounds();
+        const activeIds = Object.keys(activeNodes);
         const magicState = window.AudioEngine.getMagicState();
-        
+
         if (activeIds.length === 0 && !magicState.isPlaying) {
-            activeContainer.classList.add('hidden');
+            mixerContainer.classList.add('hidden');
             return;
         }
 
-        activeContainer.classList.remove('hidden');
+        mixerContainer.classList.remove('hidden');
         activeMixer.innerHTML = '';
 
         // Render ambient sound rows
-        const activeNodes = window.AudioEngine.getActiveNodes();
         Object.keys(activeNodes).forEach(id => {
             const sound = window.SleepData.sounds.find(s => s.id === id);
             if (!sound) return;
