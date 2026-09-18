@@ -46,8 +46,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons and Performance -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/tailwind.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center text-slate-200 selection:bg-violet-500/30">
@@ -164,23 +167,23 @@
 
     </div>
 
-    <!-- Firebase SDKs (Required for Realtime Config & Analytics) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
+    <!-- Firebase Core -->
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
 
-    <!-- Modular Scripts -->
-    <script src="js/firebase-config.js"></script>
-    <script src="js/firebase-sync.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/data.js"></script>
-    <script src="js/audio.js"></script>
-    <script src="js/presets.js"></script>
-    <script src="js/timer.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/ads.js"></script>
-    <script>
+    <!-- SleepSync Core Scripts -->
+    <script defer src="js/firebase-config.js"></script>
+    <script defer src="js/firebase-sync.js"></script>
+    <script defer src="js/config.js"></script>
+    <script defer src="js/data.js"></script>
+    <script defer src="js/audio.js"></script>
+    <script defer src="js/presets.js"></script>
+    <script defer src="js/timer.js"></script>
+    <script defer src="js/storage.js"></script>
+    <script defer src="js/ui.js"></script>
+    <script defer src="js/ads.js"></script>
+    <script defer>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.FirebaseSync) window.FirebaseSync.init();
             if (window.UI) window.UI.init();
